@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { fetchSurahs, fetchSurahWithTajweed } from "./api";
 import { Surah, SurahDetail } from "./types";
 import { TajweedText } from "./components/TajweedText";
-import { BookOpen, ChevronDown, PlayCircle, Loader2, Eye } from "lucide-react";
+import { BookOpen, ChevronDown, PlayCircle, Loader2, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
@@ -31,12 +31,14 @@ export default function App() {
   );
   const [showTafsir, setShowTafsir] = useState<boolean>(false);
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
-  const [glareFilter, setGlareFilter] = useState<"none" | "warm" | "dim" | "dark">(
-    () => {
-      const saved = localStorage.getItem("saved_glare_filter");
-      return (saved as "none" | "warm" | "dim" | "dark") || "none";
-    },
-  );
+  const [dimLevel, setDimLevel] = useState<number>(() => {
+    const saved = localStorage.getItem("saved_dim_level");
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("saved_dim_level", dimLevel.toString());
+  }, [dimLevel]);
 
   useEffect(() => {
     fetchSurahs().then(setSurahs).catch(console.error);
@@ -73,10 +75,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("saved_verse_index", currentVerseIndex.toString());
   }, [currentVerseIndex]);
-
-  useEffect(() => {
-    localStorage.setItem("saved_glare_filter", glareFilter);
-  }, [glareFilter]);
 
   const handlePrev = () => {
     if (currentVerseIndex > 0) {
@@ -133,17 +131,15 @@ export default function App() {
   const selectedSurah = surahs.find((s) => s.number === selectedSurahId);
 
   return (
-    <div
-      className={`min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1A1A] font-serif border-4 md:border-[16px] border-[#E8E1D5] selection:bg-[#C5A059]/30 transition-all duration-300 ${
-        glareFilter === "warm"
-          ? "glare-filter-warm"
-          : glareFilter === "dim"
-            ? "glare-filter-dim"
-            : glareFilter === "dark"
-              ? "glare-filter-dark"
-              : ""
-      }`}
-    >
+    <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#1A1A1A] font-serif border-4 md:border-[16px] border-[#E8E1D5] selection:bg-[#C5A059]/30 relative">
+      {/* Screen Dimmer Overlay */}
+      {dimLevel > 0 && (
+        <div
+          id="screen-dimmer-overlay"
+          className="fixed inset-0 bg-black pointer-events-none z-[9999]"
+          style={{ opacity: dimLevel / 100 }}
+        />
+      )}
       {/* Header */}
       <header className="flex justify-between items-center px-4 md:px-12 py-6 md:py-8 border-b border-[#E8E1D5] relative z-20 bg-[#FDFBF7]">
         <div className="flex flex-col">
@@ -423,91 +419,58 @@ export default function App() {
           </div>
         </div>
 
-        <div className="p-6 md:p-8 flex flex-col items-center justify-center lg:col-span-1 md:col-span-2 text-center bg-[#FAF8F4] gap-6">
-          <div className="flex flex-col items-center w-full">
-            <span className="text-[9px] uppercase tracking-widest font-sans font-bold text-[#A6937C] mb-2.5">
-              Translation
-            </span>
-            <div className="flex border border-[#D5C9B8] rounded-[4px] overflow-hidden bg-white shadow-sm">
-              <button
-                onClick={() => setTranslationLang("en")}
-                className={`px-3.5 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all ${
-                  translationLang === "en"
-                    ? "bg-[#C5A059] text-white"
-                    : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
-                }`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setTranslationLang("fr")}
-                className={`px-3.5 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all border-l border-r border-[#D5C9B8] ${
-                  translationLang === "fr"
-                    ? "bg-[#C5A059] text-white"
-                    : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
-                }`}
-              >
-                FR
-              </button>
-              <button
-                onClick={() => setTranslationLang("both")}
-                className={`px-3.5 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all ${
-                  translationLang === "both"
-                    ? "bg-[#C5A059] text-white"
-                    : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
-                }`}
-              >
-                Both
-              </button>
-            </div>
+        <div className="p-6 md:p-8 flex flex-col items-center justify-center lg:col-span-1 md:col-span-2 text-center bg-[#FAF8F4]">
+          <span className="text-[9px] uppercase tracking-widest font-sans font-bold text-[#A6937C] mb-3">
+            Translation
+          </span>
+          <div className="flex border border-[#D5C9B8] rounded-[4px] overflow-hidden bg-white shadow-sm mb-4">
+            <button
+              onClick={() => setTranslationLang("en")}
+              className={`px-3.5 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all ${
+                translationLang === "en"
+                  ? "bg-[#C5A059] text-white"
+                  : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setTranslationLang("fr")}
+              className={`px-3.5 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all border-l border-r border-[#D5C9B8] ${
+                translationLang === "fr"
+                  ? "bg-[#C5A059] text-white"
+                  : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
+              }`}
+            >
+              FR
+            </button>
+            <button
+              onClick={() => setTranslationLang("both")}
+              className={`px-3.5 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all ${
+                translationLang === "both"
+                  ? "bg-[#C5A059] text-white"
+                  : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
+              }`}
+            >
+              Both
+            </button>
           </div>
 
-          <div className="flex flex-col items-center w-full">
-            <span className="text-[9px] uppercase tracking-widest font-sans font-bold text-[#A6937C] mb-2.5 flex items-center gap-1.5 select-none">
-              <Eye className="w-3.5 h-3.5 text-[#A6937C]" />
-              Screen Glare Filter
+          <div className="w-full max-w-[180px] flex flex-col items-center">
+            <span className="text-[9px] uppercase tracking-widest font-sans font-bold text-[#A6937C] mb-2 flex items-center gap-1.5">
+              <Sun className="w-3.5 h-3.5" /> Brightness / Dimmer
             </span>
-            <div className="flex border border-[#D5C9B8] rounded-[4px] overflow-hidden bg-white shadow-sm">
-              <button
-                onClick={() => setGlareFilter("none")}
-                className={`px-3 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all ${
-                  glareFilter === "none"
-                    ? "bg-[#C5A059] text-white"
-                    : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
-                }`}
-              >
-                None
-              </button>
-              <button
-                onClick={() => setGlareFilter("warm")}
-                className={`px-3 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all border-l border-[#D5C9B8] ${
-                  glareFilter === "warm"
-                    ? "bg-[#C5A059] text-white"
-                    : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
-                }`}
-              >
-                Warm
-              </button>
-              <button
-                onClick={() => setGlareFilter("dim")}
-                className={`px-3 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all border-l border-r border-[#D5C9B8] ${
-                  glareFilter === "dim"
-                    ? "bg-[#C5A059] text-white"
-                    : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
-                }`}
-              >
-                Dim
-              </button>
-              <button
-                onClick={() => setGlareFilter("dark")}
-                className={`px-3 py-1.5 text-[10px] uppercase tracking-wider font-sans font-bold transition-all ${
-                  glareFilter === "dark"
-                    ? "bg-[#C5A059] text-white"
-                    : "text-[#1A1A1A] hover:bg-[#FAF8F4]"
-                }`}
-              >
-                Cozy
-              </button>
+            <div className="flex items-center gap-2.5 w-full">
+              <span className="text-[9px] font-sans text-slate-400">100%</span>
+              <input
+                type="range"
+                min="0"
+                max="80"
+                value={dimLevel}
+                onChange={(e) => setDimLevel(parseInt(e.target.value))}
+                className="w-full accent-[#C5A059] h-1 bg-[#E8E1D5] rounded-full appearance-none cursor-pointer"
+              />
+              <span className="text-[9px] font-sans text-slate-500 font-bold">{100 - dimLevel}%</span>
             </div>
           </div>
         </div>
