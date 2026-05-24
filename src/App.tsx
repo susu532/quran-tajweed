@@ -209,7 +209,7 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col items-end w-[90%] max-w-[90%] mx-auto px-2 md:px-4 pt-16 pb-24 relative overflow-hidden">
+      <main className="flex-grow flex flex-col items-center w-[90%] max-w-[90%] mx-auto px-2 md:px-4 pt-16 pb-24 relative overflow-hidden">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 text-[#A6937C] w-full">
             <Loader2 className="w-8 h-8 animate-spin mb-4" />
@@ -223,7 +223,7 @@ export default function App() {
             animate={{ opacity: 1 }}
             className="w-full relative z-10"
           >
-            <div className="w-full relative z-10 flex flex-col items-end flex-grow justify-center min-h-[50vh]">
+            <div className="w-full relative z-10 flex flex-col items-center flex-grow justify-center min-h-[50vh]">
               <AnimatePresence mode="wait">
                 {surahDetail.ayahs[currentVerseIndex] &&
                   (() => {
@@ -235,12 +235,10 @@ export default function App() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ duration: 0.3 }}
-                        className="relative flex flex-col items-end text-right group w-full"
+                        className="relative flex flex-col items-center text-center group w-full"
                       >
-                        <div className="absolute -right-4 md:-right-8 top-1/2 -translate-y-1/2 w-[1px] h-32 bg-[#E8E1D5] opacity-50 md:opacity-100 hidden sm:block"></div>
-
                         <div className="mb-8 md:mb-12 w-full" dir="rtl">
-                          <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-[2.2] md:leading-[2.0] font-arabic max-w-full break-words text-right">
+                          <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-[2.2] md:leading-[2.0] font-arabic max-w-full break-words text-center">
                             <TajweedText text={ayah.text} />
                             <span className="inline-block mx-4 text-xl md:text-3xl text-[#A6937C] align-middle font-arabic select-none opacity-50 font-light translate-y-0.5">
                               {toArabicNumeral(ayah.numberInSurah)}
@@ -248,15 +246,15 @@ export default function App() {
                           </p>
                         </div>
 
-                        <div className="max-w-full pr-4 md:pr-0 text-right flex flex-col items-end gap-4 w-full">
+                        <div className="max-w-full text-center flex flex-col items-center gap-4 w-full">
                           {(translationLang === "en" ||
                             translationLang === "both") && (
                             <div className="w-full">
-                              <p className="text-base md:text-xl italic leading-relaxed text-[#444] text-right">
+                              <p className="text-base md:text-xl italic leading-relaxed text-[#444] text-center">
                                 “{ayah.translation}”
                               </p>
                               {translationLang === "both" && (
-                                <span className="text-[9px] uppercase tracking-widest font-sans font-bold text-[#A6937C] block mt-1">
+                                <span className="text-[9px] uppercase tracking-widest font-sans font-bold text-[#A6937C] block mt-1 text-center">
                                   Sahih International (EN)
                                 </span>
                               )}
@@ -266,18 +264,18 @@ export default function App() {
                           {(translationLang === "fr" ||
                             translationLang === "both") && (
                             <div className="w-full">
-                              <p className="text-base md:text-xl italic leading-relaxed text-[#444] text-right">
+                              <p className="text-base md:text-xl italic leading-relaxed text-[#444] text-center">
                                 “{ayah.translationFr}”
                               </p>
                               {translationLang === "both" && (
-                                <span className="text-[9px] uppercase tracking-widest font-sans font-bold text-[#A6937C] block mt-1">
+                                <span className="text-[9px] uppercase tracking-widest font-sans font-bold text-[#A6937C] block mt-1 text-center">
                                   Hamidullah (FR)
                                 </span>
                               )}
                             </div>
                           )}
 
-                          <div className="flex flex-col items-end gap-3 mt-2 w-full">
+                          <div className="flex flex-col items-center gap-3 mt-2 w-full">
                             <button
                               onClick={() => setShowTafsir(!showTafsir)}
                               className={`flex items-center gap-2 px-3 py-1.5 rounded-[4px] border text-[10px] font-sans font-bold uppercase tracking-widest transition-all select-none ${
@@ -299,7 +297,7 @@ export default function App() {
                                   animate={{ opacity: 1, height: "auto" }}
                                   exit={{ opacity: 0, height: 0 }}
                                   transition={{ duration: 0.2 }}
-                                  className="w-full bg-[#FAF8F4] border border-[#E8E1D5] rounded-[4px] p-5 mt-2 text-right overflow-hidden shadow-sm"
+                                  className="w-full bg-[#FAF8F4] border border-[#E8E1D5] rounded-[4px] p-5 mt-2 text-center overflow-hidden shadow-sm"
                                   dir="rtl"
                                 >
                                   <div className="flex items-center justify-between border-b border-[#E8E1D5] pb-2 mb-3">
@@ -310,7 +308,7 @@ export default function App() {
                                       Al-Wasit Tafsir
                                     </span>
                                   </div>
-                                  <p className="font-arabic text-base sm:text-lg leading-[2.2] text-[#2D3748] text-right font-normal">
+                                  <p className="font-arabic text-base sm:text-lg leading-[2.2] text-[#2D3748] text-center font-normal">
                                     {ayah.tafsirWaseet}
                                   </p>
                                 </motion.div>
@@ -318,7 +316,7 @@ export default function App() {
                             </AnimatePresence>
                           </div>
 
-                          <p className="text-[10px] md:text-xs font-sans uppercase tracking-widest text-[#A6937C] text-right">
+                          <p className="text-[10px] md:text-xs font-sans uppercase tracking-widest text-[#A6937C] text-center">
                             Verse {ayah.numberInSurah}
                           </p>
                         </div>
