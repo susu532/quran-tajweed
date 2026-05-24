@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif:
+    "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times,
+    serif;
+  --font-arabic: "Amiri Quran", "Scheherazade New", serif;
+}
+
+@layer utilities {
+  .tajweed-h,
+  .tajweed-s,
+  .tajweed-l,
+  .tajweed-u,
+  .tajweed-d {
+    /* Silent / Ignore / Idgham without Ghunnah: soft light slate gray to fade out */
+    @apply text-slate-400 opacity-50 font-light;
+  }
+
+  .tajweed-n {
+    /* Normal Madd / Madd Tabi'i (2): vibrant bright amber-gold */
+    @apply text-[#F59E0B] font-semibold;
+  }
+
+  .tajweed-o,
+  .tajweed-p {
+    /* Madd Muttasil / Munfasil / Arid (4-5): vibrant magenta-pink */
+    @apply text-[#EC4899] font-medium;
+  }
+
+  .tajweed-m {
+    /* Madd Lazim (6): bright striking red */
+    @apply text-[#EF4444] font-bold;
+  }
+
+  .tajweed-q {
+    /* Qalqalah / Echo: sky blue / azure */
+    @apply text-[#0ea5e9] font-bold;
+  }
+
+  .tajweed-f,
+  .tajweed-a,
+  .tajweed-c,
+  .tajweed-w,
+  .tajweed-i,
+  .tajweed-g {
+    /* Ghunnah, Ikhfa, Idgham, Iqlab: vibrant emerald green */
+    @apply text-[#10B981] font-semibold;
+  }
+
+  .tajweed-tafkhim {
+    /* Tafkhim / Heavy Letters: bright purple-violet */
+    @apply text-[#8B5CF6] font-bold;
+  }
+}

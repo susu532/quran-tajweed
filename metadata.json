@@ -1,0 +1,6 @@
+{
+  "name": "Quran Viewer with Tajweed",
+  "description": "Read the Quran with verse by verse English translation and Arabic Tajweed color coding.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
