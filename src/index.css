@@ -53,16 +53,4 @@
     /* Tafkhim / Heavy Letters: bright purple-violet */
     @apply text-[#8B5CF6] font-bold;
   }
-
-  .glare-filter-warm {
-    filter: sepia(35%) brightness(92%) contrast(92%);
-  }
-
-  .glare-filter-dim {
-    filter: brightness(80%) contrast(90%);
-  }
-
-  .glare-filter-dark {
-    filter: brightness(60%) contrast(85%) sepia(12%);
-  }
 }
