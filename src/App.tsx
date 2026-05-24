@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { fetchSurahs, fetchSurahWithTajweed } from "./api";
 import { Surah, SurahDetail } from "./types";
 import { TajweedText } from "./components/TajweedText";
@@ -12,16 +12,25 @@ import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
   const [surahs, setSurahs] = useState<Surah[]>([]);
-  const [selectedSurahId, setSelectedSurahId] = useState<number>(1);
+  const [selectedSurahId, setSelectedSurahId] = useState<number>(() => {
+    const saved = localStorage.getItem("saved_surah_id");
+    return saved ? parseInt(saved, 10) : 1;
+  });
   const [surahDetail, setSurahDetail] = useState<SurahDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const [currentVerseIndex, setCurrentVerseIndex] = useState<number>(0);
+  const lastScrollTimeRef = useRef<number>(0);
+
+  const [currentVerseIndex, setCurrentVerseIndex] = useState<number>(() => {
+    const saved = localStorage.getItem("saved_verse_index");
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [translationLang, setTranslationLang] = useState<"en" | "fr" | "both">(
     "en",
   );
   const [showTafsir, setShowTafsir] = useState<boolean>(false);
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
 
   useEffect(() => {
     fetchSurahs().then(setSurahs).catch(console.error);
@@ -29,12 +38,35 @@ export default function App() {
 
   useEffect(() => {
     setLoading(true);
-    setCurrentVerseIndex(0);
+    let verseToSet = 0;
+    if (isInitialLoad) {
+      const savedVerse = localStorage.getItem("saved_verse_index");
+      verseToSet = savedVerse ? parseInt(savedVerse, 10) : 0;
+      setIsInitialLoad(false);
+    } else {
+      setCurrentVerseIndex(0);
+    }
+
     fetchSurahWithTajweed(selectedSurahId)
-      .then(setSurahDetail)
+      .then((detail) => {
+        setSurahDetail(detail);
+        if (verseToSet >= detail.ayahs.length) {
+          setCurrentVerseIndex(0);
+        } else {
+          setCurrentVerseIndex(verseToSet);
+        }
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [selectedSurahId]);
+
+  useEffect(() => {
+    localStorage.setItem("saved_surah_id", selectedSurahId.toString());
+  }, [selectedSurahId]);
+
+  useEffect(() => {
+    localStorage.setItem("saved_verse_index", currentVerseIndex.toString());
+  }, [currentVerseIndex]);
 
   const handlePrev = () => {
     if (currentVerseIndex > 0) {
@@ -59,6 +91,34 @@ export default function App() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentVerseIndex, surahDetail]);
+
+  useEffect(() => {
+    const cooldown = 600; // ms cooldown to prevent accidental rapid skips
+
+    const handleWheel = (e: WheelEvent) => {
+      // If the dropdown is open, let the user scroll through surah list normally
+      if (isDropdownOpen) return;
+
+      // Ignore extremely minor delta movements
+      if (Math.abs(e.deltaY) < 25) return;
+
+      const now = Date.now();
+      if (now - lastScrollTimeRef.current < cooldown) {
+        return;
+      }
+
+      if (e.deltaY > 0) {
+        handleNext();
+        lastScrollTimeRef.current = now;
+      } else if (e.deltaY < 0) {
+        handlePrev();
+        lastScrollTimeRef.current = now;
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: true });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, [currentVerseIndex, surahDetail, isDropdownOpen]);
 
   const selectedSurah = surahs.find((s) => s.number === selectedSurahId);
 
@@ -188,7 +248,7 @@ export default function App() {
                           </p>
                         </div>
 
-                        <div className="max-w-5xl lg:max-w-6xl pr-4 md:pr-0 text-right flex flex-col items-end gap-4 w-full">
+                        <div className="max-w-full pr-4 md:pr-0 text-right flex flex-col items-end gap-4 w-full">
                           {(translationLang === "en" ||
                             translationLang === "both") && (
                             <div className="w-full">
